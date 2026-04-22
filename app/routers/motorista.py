@@ -28,9 +28,32 @@ def create(motorista: MotoristaCreate, db: Session = Depends(get_db)):
     return create_motorista(db, motorista)
 
 
+from typing import Optional
+
 @router.get("/", response_model=list[MotoristaResponse])
-def list_all(db: Session = Depends(get_db)):
-    return get_motoristas(db)
+def listar(
+    search: Optional[str] = None,
+    email: Optional[str] = None,
+    telefone: Optional[str] = None,
+    numero_carta: Optional[str] = None,
+    numero_bi: Optional[str] = None,
+    categoria_carta: Optional[str] = None,
+    provincia: Optional[str] = None,
+    data_nascimento: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    return get_motoristas(
+        db,
+        search,
+        email,
+        telefone,
+        numero_carta,
+        numero_bi,
+        categoria_carta,
+        provincia,
+        data_nascimento
+    )
+
 
 
 @router.get("/{motorista_id}", response_model=MotoristaResponse)

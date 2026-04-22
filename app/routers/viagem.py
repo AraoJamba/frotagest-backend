@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import Optional
 
 from app.schemas.viagem import (
     ViagemCreate,
@@ -22,9 +23,26 @@ def criar(viagem: ViagemCreate, db: Session = Depends(get_db)):
     return viagem_crud.create_viagem(db, viagem)
 
 
+
+
 @router.get("/", response_model=list[ViagemResponse])
-def listar(db: Session = Depends(get_db)):
-    return viagem_crud.get_viagens(db)
+def listar(
+    search: Optional[str] = None,
+    data_inicio: Optional[str] = None,
+    local_partida: Optional[str] = None,
+    local_destino: Optional[str] = None,
+    status: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    return viagem_crud.get_viagens(
+        db,
+        search=search,
+        data_inicio=data_inicio,
+        local_partida=local_partida,
+        local_destino=local_destino,
+        status=status
+    )
+
 
 
 @router.get("/{viagem_id}", response_model=ViagemResponse)

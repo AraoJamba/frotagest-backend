@@ -7,7 +7,7 @@ class DespesaBase(BaseModel):
     valor: float
     data: datetime
     descricao: str
-    veiculo_id: str = Field(..., alias="veiculoId")
+    veiculo_id: str 
     recibo: Optional[str] = None
     pago: bool = False
 

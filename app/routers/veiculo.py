@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
+from typing import Optional
+
 from app.schemas.veiculo import (
     VeiculoCreate,
     VeiculoResponse,
@@ -18,9 +20,30 @@ def criar(veiculo: VeiculoCreate, db: Session = Depends(get_db)):
     return crud.criar(db, veiculo)
 
 
+
+
 @router.get("/", response_model=List[VeiculoResponse])
-def listar(db: Session = Depends(get_db)):
-    return crud.listar(db)
+def listar(
+    search: Optional[str] = None,
+    placa: Optional[str] = None,
+    modelo: Optional[str] = None,
+    marca: Optional[str] = None,
+    ano: Optional[str] = None,
+    VIN: Optional[str] = None,
+    tipo: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    return crud.listar(
+        db,
+        search,
+        placa,
+        modelo,
+        marca,
+        ano,
+        VIN,
+        tipo
+    )
+
 
 
 @router.get("/{id}", response_model=VeiculoResponse)

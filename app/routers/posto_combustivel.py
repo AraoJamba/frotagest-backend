@@ -9,6 +9,8 @@ from app.schemas.posto_combustivel import (
 )
 from app.crud import posto_combustivel as posto_crud
 
+from typing import Optional
+
 
 router = APIRouter(
     prefix="/postos",
@@ -22,8 +24,25 @@ def criar(posto: PostoCombustivelCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[PostoCombustivelResponse])
-def listar(db: Session = Depends(get_db)):
-    return posto_crud.get_postos(db)
+def listar(
+    search: Optional[str] = None,
+    nome: Optional[str] = None,
+    cidade: Optional[str] = None,
+    provincia: Optional[str] = None,
+    gasoleo: Optional[str] = None,
+    gasolina: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    return posto_crud.get_postos(
+        db,
+        search,
+        nome,
+        cidade,
+        provincia,
+        gasoleo,
+        gasolina
+    )
+
 
 
 @router.get("/{posto_id}", response_model=PostoCombustivelResponse)

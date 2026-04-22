@@ -1,21 +1,28 @@
 from sqlalchemy.orm import Session
 from app.models.despesa import Despesa
 from app.schemas.despesa import DespesaCreate, DespesaUpdate
+from app.models.veiculo import Veiculo
+from fastapi import HTTPException
+
 
 
 def create_despesa(db: Session, despesa: DespesaCreate):
-    db_despesa = Despesa(
-        tipo=despesa.tipo,
-        valor=despesa.valor,
-        data=despesa.data,
-        descricao=despesa.descricao,
-        veiculo_id=despesa.veiculo_id,
-        recibo=despesa.recibo,
-        pago=despesa.pago
-    )
+    
+    veiculo = db.query(Veiculo).filter(
+        Veiculo.id == despesa.veiculo_id
+    ).first()
+
+    if not veiculo:
+        raise HTTPException(
+            status_code=404,
+            detail="Veículo não encontrado"
+        )
+
+    db_despesa = Despesa(**despesa.dict())
     db.add(db_despesa)
     db.commit()
     db.refresh(db_despesa)
+
     return db_despesa
 
 

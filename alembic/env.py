@@ -5,7 +5,11 @@ from app.models.viagem import Viagem
 from app.models.posto_combustivel import PostoCombustivel
 from app.models.lembrete import Lembrete
 from app.models.despesa import Despesa
-
+from app.models.manutencao_veiculo import ManutencaoVeiculo
+from app.models.servico import Servico
+from app.models.configuracoes_empresa import ConfiguracoesEmpresa
+from app.models.configuracoes_medidas import ConfiguracoesMedidas
+from app.models.usuario import Usuario
 
 
 from logging.config import fileConfig
