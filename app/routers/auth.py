@@ -11,9 +11,41 @@ router = APIRouter(
     tags=["Auth"]
 )
 
+
+router = APIRouter(
+    prefix="/auth",
+    tags=["Auth"]
+)
+
+
 @router.get("/eu")
-def me(access_token: str = Cookie(None)):
-    return {"usuario_id": access_token}
+def me(
+    access_token: str = Cookie(None),
+    db: Session = Depends(get_db)
+):
+    if not access_token:
+        raise HTTPException(
+            status_code=401,
+            detail="Não autenticado"
+        )
+
+    usuario = db.query(Usuario).filter(
+        Usuario.id == access_token
+    ).first()
+
+    if not usuario:
+        raise HTTPException(
+            status_code=401,
+            detail="Usuário inválido"
+        )
+
+    return {
+        "id": usuario.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+        "papel": usuario.papel
+    }
+
 
 @router.post("/login")
 def login(

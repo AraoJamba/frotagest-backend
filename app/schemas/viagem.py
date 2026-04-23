@@ -3,6 +3,10 @@ from typing import Optional
 from datetime import datetime
 
 
+
+
+
+
 class ViagemBase(BaseModel):
     motorista_id: str
     veiculo_id: str

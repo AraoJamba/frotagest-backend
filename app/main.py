@@ -1,21 +1,23 @@
 from fastapi import FastAPI
-from app.routers import veiculo
-from app.core.database import engine
-from app.core.database import Base
-from app.routers import motorista
-from app.routers import viagem
-from app.routers import posto_combustivel
-from app.routers import lembrete
-from app.routers import despesa
-from app.routers import manutencao_veiculo
-from app.routers import servico
-from app.routers import configuracoes_empresa
-from app.routers import configuracoes_medidas
-from app.routers import usuario
-from app.routers import auth
-
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.core.database import Base
+from app.routers import (
+    veiculo,
+    motorista,
+    viagem,
+    posto_combustivel,
+    lembrete,
+    despesa,
+    manutencao_veiculo,
+    servico,
+    configuracoes_empresa,
+    configuracoes_medidas,
+    usuario,
+    auth
+)
+
+
 
 app = FastAPI()
 
