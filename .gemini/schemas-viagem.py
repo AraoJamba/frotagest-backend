@@ -6,12 +6,12 @@ from datetime import datetime
 # --- Schemas para aninhamento (Dados do Motorista e Veículo) ---
 
 class MotoristaMini(BaseModel):
-    id: Optional[str] = None
-    nome: Optional[str] = None
+    id: str
+    nome: str
     model_config = ConfigDict(from_attributes=True)
 
 class VeiculoMini(BaseModel):
-    id: Optional[str] = None
+    id: str
     placa: str
     marca: str
     modelo: str
@@ -31,8 +31,8 @@ class ViagemBase(BaseModel):
     observacoes: Optional[str] = None
 
 class ViagemCreate(ViagemBase):
-    motorista_id: Optional[str] = None
-    veiculo_id: Optional[str] = None
+    motorista_id: str
+    veiculo_id: str
 
 class ViagemUpdate(BaseModel):
     data_inicio: Optional[datetime] = None
@@ -47,8 +47,8 @@ class ViagemUpdate(BaseModel):
 
 class ViagemResponse(ViagemBase):
     id: str
-    motorista_id: Optional[str] = None
-    veiculo_id: Optional[str] = None
+    motorista_id: str
+    veiculo_id: str
     model_config = ConfigDict(from_attributes=True)
 
 # ESTA É A CLASSE QUE RETORNA OS DADOS DETALHADOS

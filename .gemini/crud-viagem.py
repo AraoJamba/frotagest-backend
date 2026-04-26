@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
+from app.models.viagem import Viagem
 from app.models.motorista import Motorista
 from app.models.veiculo import Veiculo
 from app.schemas.viagem import ViagemCreate, ViagemUpdate
@@ -7,15 +8,12 @@ from sqlalchemy import or_, cast, String
 from typing import Optional
 from sqlalchemy.orm import selectinload
 
-# ... outros imports
 
 def get_viagem_by_id(db: Session, viagem_id: str):
     return db.query(Viagem).options(
         joinedload(Viagem.motorista), 
         joinedload(Viagem.veiculo)
     ).filter(Viagem.id == viagem_id).first()
-
-# REMOVA a outra definição de get_viagem_by_id que existe no final do arquivo!
 
 
 
@@ -122,6 +120,14 @@ def get_viagens(
 
 
 
+def get_viagem_by_id(db: Session, viagem_id: str):
+    return (
+        db.query(Viagem)
+        .join(Motorista, Viagem.motorista_id == Motorista.id)
+        .join(Veiculo, Viagem.veiculo_id == Veiculo.id)
+        .filter(Viagem.id == viagem_id)
+        .first()
+    )
 
 
 def update_viagem(db: Session, viagem_id: str, viagem: ViagemUpdate):

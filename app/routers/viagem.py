@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional
+from app.schemas.viagem import ViagemDetailResponse
+from app.models.viagem import Viagem
+
 
 from app.schemas.viagem import (
     ViagemCreate,
@@ -23,36 +26,89 @@ def criar(viagem: ViagemCreate, db: Session = Depends(get_db)):
     return viagem_crud.create_viagem(db, viagem)
 
 
+@router.get("/")
+def listar(db: Session = Depends(get_db)):
+
+    viagens = db.query(Viagem).all()
+
+    resultado = []
+    
+    for v in viagens:
+        resultado.append({
+            "id": v.id,
+            "motorista_id": v.motorista_id or "",
+            "veiculo_id": v.veiculo_id or "",
+            "dataInicio": v.data_inicio,
+            "dataFim": v.data_fim,
+            "localPartida": v.local_partida,
+            "localDestino": v.local_destino,
+            "distancia": v.distancia,
+            "status": v.status,
+            "combustivelGasto": v.combustivel_gasto,
+            "custoViagem": v.custo_viagem,
+        })
 
 
-@router.get("/", response_model=list[ViagemResponse])
-def listar(
-    search: Optional[str] = None,
-    data_inicio: Optional[str] = None,
-    local_partida: Optional[str] = None,
-    local_destino: Optional[str] = None,
-    status: Optional[str] = None,
-    db: Session = Depends(get_db)
-):
-    return viagem_crud.get_viagens(
-        db,
-        search=search,
-        data_inicio=data_inicio,
-        local_partida=local_partida,
-        local_destino=local_destino,
-        status=status
-    )
+    # for v in viagens:
+    #     resultado.append({
+    #         "id": v.id,
+    #         "motoristaId": v.motorista_id,
+    #         "veiculoId": v.veiculo_id,
+    #         "dataInicio": v.data_inicio,
+    #         "dataFim": v.data_fim,
+    #         "localPartida": v.local_partida,
+    #         "localDestino": v.local_destino,
+    #         "distancia": v.distancia,
+    #         "status": v.status,
+    #         "combustivelGasto": v.combustivel_gasto,
+    #         "custoViagem": v.custo_viagem,
+            
+    #         # 🔥 evita crash quando relação não existir
+    #         "motoristaNome": v.motorista.nome if v.motorista else "Sem motorista",
+    #         "veiculoPlaca": v.veiculo.placa if v.veiculo else "Sem veículo",
+    #     })
+
+    return resultado
 
 
 
-@router.get("/{viagem_id}", response_model=ViagemResponse)
+
+# @router.get("/", response_model=list[ViagemResponse])
+# def listar(
+#     search: Optional[str] = None,
+#     data_inicio: Optional[str] = None,
+#     local_partida: Optional[str] = None,
+#     local_destino: Optional[str] = None,
+#     status: Optional[str] = None,
+#     db: Session = Depends(get_db)
+# ):
+#     return viagem_crud.get_viagens(
+#         db,
+#         search=search,
+#         data_inicio=data_inicio,
+#         local_partida=local_partida,
+#         local_destino=local_destino,
+#         status=status
+#     )
+
+@router.get("/{viagem_id}", response_model=ViagemDetailResponse)
 def buscar(viagem_id: str, db: Session = Depends(get_db)):
     viagem = viagem_crud.get_viagem_by_id(db, viagem_id)
-
     if not viagem:
         raise HTTPException(404, "Viagem não encontrada")
-
     return viagem
+
+
+
+
+# @router.get("/{viagem_id}", response_model=ViagemResponse)
+# def buscar(viagem_id: str, db: Session = Depends(get_db)):
+#     viagem = viagem_crud.get_viagem_by_id(db, viagem_id)
+
+#     if not viagem:
+#         raise HTTPException(404, "Viagem não encontrada")
+
+#     return viagem
 
 
 @router.put("/{viagem_id}", response_model=ViagemResponse)

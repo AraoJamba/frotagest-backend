@@ -1,5 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from app.models.viagem import Viagem
+from app.models.motorista import Motorista
+
+
 
 from app.schemas.motorista import (
     MotoristaCreate,
@@ -78,11 +82,35 @@ def update(
 
     return motorista_updated
 
-@router.delete("/{motorista_id}")
-def delete(motorista_id: str, db: Session = Depends(get_db)):
-    motorista_deleted = delete_motorista(db, motorista_id)
+# @router.delete("/{motorista_id}")
+# def delete(motorista_id: str, db: Session = Depends(get_db)):
+#     motorista_deleted = delete_motorista(db, motorista_id)
 
-    if not motorista_deleted:
-        raise HTTPException(404, "Motorista não encontrado")
+#     if not motorista_deleted:
+#         raise HTTPException(404, "Motorista não encontrado")
+
+#     return {"message": "Motorista deletado com sucesso"}
+
+
+@router.delete("/motoristas/{id}")
+def deletar_motorista(id: str, db: Session = Depends(get_db)):
+    
+    # 🔴 verificar se tem viagens associadas
+    viagens = db.query(Viagem).filter(Viagem.motorista_id == id).all()
+
+    if len(viagens) > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Motorista possui viagens associadas"
+        )
+
+    # ✅ deletar motorista
+    motorista = db.query(Motorista).filter(Motorista.id == id).first()
+
+    if not motorista:
+        raise HTTPException(status_code=404, detail="Motorista não encontrado")
+
+    db.delete(motorista)
+    db.commit()
 
     return {"message": "Motorista deletado com sucesso"}
