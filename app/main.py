@@ -6,6 +6,10 @@ from app.routers import (
     configuracoes_empresa, configuracoes_medidas, usuario, auth
 )
 
+
+
+
+
 # 1. Crie a instância APENAS UMA VEZ
 app = FastAPI()
 

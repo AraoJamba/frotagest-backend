@@ -10,6 +10,9 @@ from app.core.database import Base
 class TipoManutencao(str, enum.Enum):
     preventiva = "preventiva"
     corretiva = "corretiva"
+    manutencao = "manutencao"
+    reparo = "reparo"
+    inspecao = "inspecao"
 
 
 class StatusManutencao(str, enum.Enum):

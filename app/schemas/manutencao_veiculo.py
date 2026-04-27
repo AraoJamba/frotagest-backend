@@ -7,6 +7,10 @@ from enum import Enum
 class TipoManutencao(str, Enum):
     preventiva = "preventiva"
     corretiva = "corretiva"
+    manutencao = "manutencao"
+    reparo = "reparo"
+    inspecao = "inspecao"
+
 
 
 class StatusManutencao(str, Enum):
