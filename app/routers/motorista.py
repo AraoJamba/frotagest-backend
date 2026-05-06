@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.viagem import Viagem
-from app.models.motorista import Motorista
+from app.models.motorista import Motorista 
 
 
 
@@ -20,6 +20,8 @@ from app.crud.motorista import (
 )
 
 from app.core.database import get_db
+
+from sqlalchemy import func
 
 router = APIRouter(
     prefix="/motoristas",
@@ -82,15 +84,6 @@ def update(
 
     return motorista_updated
 
-# @router.delete("/{motorista_id}")
-# def delete(motorista_id: str, db: Session = Depends(get_db)):
-#     motorista_deleted = delete_motorista(db, motorista_id)
-
-#     if not motorista_deleted:
-#         raise HTTPException(404, "Motorista não encontrado")
-
-#     return {"message": "Motorista deletado com sucesso"}
-
 
 @router.delete("/motoristas/{id}")
 def deletar_motorista(id: str, db: Session = Depends(get_db)):
@@ -114,3 +107,28 @@ def deletar_motorista(id: str, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Motorista deletado com sucesso"}
+
+
+
+
+@router.get("/estatisticas/resumo")
+def resumo_veiculos(db: Session = Depends(get_db)):
+
+    total = db.query(func.count(Motorista.id)).scalar()
+
+    activos = db.query(func.count(Motorista.id)).filter(
+        Motorista.ativo == True
+    ).scalar()
+
+    inactivos = db.query(func.count(Motorista.id)).filter(
+        Motorista.ativo == False
+    ).scalar()
+
+
+    return {
+        "total": total,
+        "ativos": activos,
+        "inativos": inactivos,
+    }
+
+#onestate

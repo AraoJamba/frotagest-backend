@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from sqlalchemy import func
+
+from app.models.usuario import Usuario, PapelUsuario
+
 from app.core.database import get_db
 
 from app.schemas.usuario import (
@@ -87,3 +91,24 @@ def deletar(usuario_id: str, db: Session = Depends(get_db)):
         )
 
     return {"message": "Usuário deletado com sucesso"}
+
+
+@router.get("/estatisticas/resumo")
+def resumo_veiculos(db: Session = Depends(get_db)):
+
+    total = db.query(func.count(Usuario.id)).scalar()
+
+    admin = db.query(func.count(Usuario.id)).filter(
+        Usuario.papel == PapelUsuario.admin
+    ).scalar()
+
+    gerente = db.query(func.count(Usuario.id)).filter(
+        Usuario.papel == PapelUsuario.gerente
+    ).scalar()
+
+
+    return {
+        "total": total,
+        "admin": admin,
+        "gerente": gerente,
+    }

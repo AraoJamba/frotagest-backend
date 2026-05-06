@@ -4,6 +4,10 @@ from app.core.database import get_db
 from app.schemas.despesa import DespesaCreate, DespesaUpdate, DespesaResponse
 from app.crud.despesa import create_despesa, delete_despesa, get_despesas, get_despesa_by_id, update_despesa
 
+from app.models.despesa import Despesa, TipoDespesa
+from sqlalchemy import func
+
+
 router = APIRouter(prefix="/despesas", tags=["Despesas"])
 
 
@@ -45,3 +49,57 @@ def deletar(despesa_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Despesa não encontrada")
 
     return {"message": "Despesa deletada com sucesso"}
+
+@router.get("/estatisticas/resumo")
+def resumo_veiculos(db: Session = Depends(get_db)):
+
+    total = db.query(func.count(Despesa.id)).scalar()
+
+    pago = db.query(func.count(Despesa.id)).filter(
+        Despesa.pago == True
+    ).scalar()
+
+    nao_pago = db.query(func.count(Despesa.id)).filter(
+        Despesa.pago == False
+    ).scalar()
+
+    #tipo
+    combustivel = db.query(func.count(Despesa.id)).filter(
+        Despesa.tipo == TipoDespesa.combustivel
+    ).scalar()
+
+    lavagem = db.query(func.count(Despesa.id)).filter(
+        Despesa.tipo == TipoDespesa.lavagem
+    ).scalar()
+
+    manutencao = db.query(func.count(Despesa.id)).filter(
+        Despesa.tipo == TipoDespesa.manutencao
+    ).scalar()
+
+    seguro = db.query(func.count(Despesa.id)).filter(
+        Despesa.tipo == TipoDespesa.seguro
+    ).scalar()
+
+    pneu = db.query(func.count(Despesa.id)).filter(
+        Despesa.tipo == TipoDespesa.pneu
+    ).scalar()
+
+    outro = db.query(func.count(Despesa.id)).filter(
+        Despesa.tipo == TipoDespesa.outro
+    ).scalar()
+
+
+    return {
+        "total": total,
+        "pagos": pago,
+        "nao_pago": nao_pago,
+ 
+        "tipos": {
+            "combustivel": combustivel,
+            "pneus": pneu,
+            "manutencoes": manutencao,
+            "seguros": seguro,
+            "lavagens": lavagem,
+            "outros": outro
+        }
+    }

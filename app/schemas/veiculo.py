@@ -5,15 +5,21 @@ from enum import Enum
 
 
 class TipoVeiculo(str, Enum):
-    leve = "leve"
-    medio = "medio"
-    pesado = "pesado"
+    carro = "carro"
+    caminhao = "caminhao"
+    caminhonete = "caminhonete"
+    motorizada = "motorizada"
+    autocarro = "autocarro"
+    mini_autocarro = "mini_autocarro"
+
 
 
 class Combustivel(str, Enum):
     gasolina = "gasolina"
-    diesel = "diesel"
     etanol = "etanol"
+    diesel = "diesel"
+    eletrico = "eletrico"
+
     
 class VeiculoBase(BaseModel):
     placa: str

@@ -8,8 +8,9 @@ from app.schemas.posto_combustivel import (
     PostoCombustivelResponse
 )
 from app.crud import posto_combustivel as posto_crud
-
+from app.models.posto_combustivel import PostoCombustivel
 from typing import Optional
+from sqlalchemy import func
 
 
 router = APIRouter(
@@ -77,3 +78,25 @@ def deletar(posto_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Posto não encontrado")
 
     return {"message": "Posto deletado com sucesso"}
+
+@router.get("/estatisticas/resumo")
+def resumo_veiculos(db: Session = Depends(get_db)):
+
+    total = db.query(func.count(PostoCombustivel.id)).scalar()
+
+    ativo = db.query(func.count(PostoCombustivel.id)).filter(
+        PostoCombustivel.ativo == True
+    ).scalar()
+
+    inativo = db.query(func.count(PostoCombustivel.id)).filter(
+        PostoCombustivel.ativo == False
+    ).scalar()
+
+
+
+    return {
+        "total": total,
+        "ativo": ativo,
+        "inativo": inativo,
+    }
+

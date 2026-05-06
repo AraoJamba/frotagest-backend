@@ -4,6 +4,9 @@ from typing import List
 
 from typing import Optional
 
+from sqlalchemy import func
+from app.models.veiculo import Veiculo, TipoVeiculo
+
 from app.schemas.veiculo import (
     VeiculoCreate,
     VeiculoResponse,
@@ -69,3 +72,58 @@ def atualizar(
 def deletar(id: str, db: Session = Depends(get_db)):
     crud.deletar(db, id)
     return {"message": "Deletado"}
+
+
+@router.get("/estatisticas/resumo")
+def resumo_veiculos(db: Session = Depends(get_db)):
+
+    total = db.query(func.count(Veiculo.id)).scalar()
+
+    activos = db.query(func.count(Veiculo.id)).filter(
+        Veiculo.ativo == True
+    ).scalar()
+
+    inactivos = db.query(func.count(Veiculo.id)).filter(
+        Veiculo.ativo == False
+    ).scalar()
+
+    carros = db.query(func.count(Veiculo.id)).filter(
+        Veiculo.tipo == TipoVeiculo.carro
+    ).scalar()
+
+    caminhoes = db.query(func.count(Veiculo.id)).filter(
+        Veiculo.tipo == TipoVeiculo.caminhao
+    ).scalar()
+
+    caminhonetes = db.query(func.count(Veiculo.id)).filter(
+        Veiculo.tipo == TipoVeiculo.caminhonete
+    ).scalar()
+
+    motorizadas = db.query(func.count(Veiculo.id)).filter(
+        Veiculo.tipo == TipoVeiculo.motorizada
+    ).scalar()
+
+    autocarros = db.query(func.count(Veiculo.id)).filter(
+        Veiculo.tipo == TipoVeiculo.autocarro
+    ).scalar()
+
+    mini_autocarros = db.query(func.count(Veiculo.id)).filter(
+        Veiculo.tipo == TipoVeiculo.mini_autocarro
+    ).scalar()
+
+    return {
+        "total": total,
+        "ativos": activos,
+        "inativos": inactivos,
+
+        "tipos": {
+            "carros": carros,
+            "caminhoes": caminhoes,
+            "caminhonetes": caminhonetes,
+            "motorizadas": motorizadas,
+            "autocarros": autocarros,
+            "miniAutocarros": mini_autocarros
+        }
+    }
+
+#onestate

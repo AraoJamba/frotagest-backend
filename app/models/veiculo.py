@@ -7,14 +7,19 @@ from sqlalchemy.orm import relationship
 
 
 class TipoVeiculo(str, enum.Enum):
-    leve = "leve"
-    medio = "medio"
-    pesado = "pesado"
+    carro = "carro"
+    caminhao = "caminhao"
+    caminhonete = "caminhonete"
+    motorizada = "motorizada"
+    autocarro = "autocarro"
+    mini_autocarro = "mini_autocarro"
     
 class Combustivel(str, enum.Enum):
     gasolina = "gasolina"
-    diesel = "diesel"
     etanol = "etanol"
+    diesel = "diesel"
+    eletrico = "eletrico"
+
     
 class Veiculo(Base):
     __tablename__ = "veiculos"

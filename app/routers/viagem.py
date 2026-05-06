@@ -4,6 +4,9 @@ from typing import Optional
 from app.schemas.viagem import ViagemDetailResponse
 from app.models.viagem import Viagem
 
+from sqlalchemy import func
+from app.models.viagem import Viagem
+
 
 from app.schemas.viagem import (
     ViagemCreate,
@@ -133,3 +136,33 @@ def deletar(viagem_id: str, db: Session = Depends(get_db)):
         raise HTTPException(404, "Viagem não encontrada")
 
     return {"message": "Viagem deletada com sucesso"}
+
+
+@router.get("/estatisticas/resumo")
+def resumo_viagens(db: Session = Depends(get_db)):
+
+    planejadas = db.query(func.count(Viagem.id)).filter(
+        Viagem.status == "planejada"
+    ).scalar()
+
+    andamento = db.query(func.count(Viagem.id)).filter(
+        Viagem.status == "em_andamento"
+    ).scalar()
+
+    concluidas = db.query(func.count(Viagem.id)).filter(
+        Viagem.status == "concluida"
+    ).scalar()
+
+    canceladas = db.query(func.count(Viagem.id)).filter(
+        Viagem.status == "cancelada"
+    ).scalar()
+
+    total = db.query(func.count(Viagem.id)).scalar()
+
+    return {
+        "total": total,
+        "planejadas": planejadas,
+        "emAndamento": andamento,
+        "concluidas": concluidas,
+        "canceladas": canceladas
+    }

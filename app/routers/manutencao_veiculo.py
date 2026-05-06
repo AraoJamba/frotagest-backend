@@ -10,6 +10,9 @@ from app.schemas.manutencao_veiculo import (
 
 from app.crud import manutencao_veiculo as crud
 
+from sqlalchemy import func
+from app.models.manutencao_veiculo import ManutencaoVeiculo, TipoManutencao, StatusManutencao
+
 
 router = APIRouter(prefix="/manutencoes", tags=["Manutencoes"])
 
@@ -60,3 +63,69 @@ def deletar(manutencao_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Manutenção não encontrada")
 
     return {"message": "Manutenção deletada com sucesso"}
+
+
+
+@router.get("/estatisticas/resumo")
+def resumo_veiculos(db: Session = Depends(get_db)):
+
+    total = db.query(func.count(ManutencaoVeiculo.id)).scalar()
+
+
+    #tipos
+    corretiva = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.tipo_manutencao == TipoManutencao.corretiva
+    ).scalar()
+
+    inspecao = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.tipo_manutencao == TipoManutencao.inspecao
+    ).scalar()
+
+    manutencao = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.tipo_manutencao == TipoManutencao.manutencao
+    ).scalar()
+
+    preventiva = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.tipo_manutencao == TipoManutencao.preventiva
+    ).scalar()
+
+    reparo = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.tipo_manutencao == TipoManutencao.reparo
+    ).scalar()
+
+    # status
+    agendada = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.status == StatusManutencao.agendada
+    ).scalar()
+
+    cancelada = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.status == StatusManutencao.cancelada
+    ).scalar()
+
+    concluida = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.status == StatusManutencao.concluida
+    ).scalar()
+
+    emAndamento = db.query(func.count(ManutencaoVeiculo.id)).filter(
+        ManutencaoVeiculo.status == StatusManutencao.emAndamento
+    ).scalar()
+
+    return {
+        "total": total,
+        "status": {
+            "agendadas": agendada,
+            "concluidas": concluida,
+            "cancelada": cancelada,
+            "emAndamento": emAndamento
+        },
+
+        "tipos": {
+            "corretiva": corretiva,
+            "caminhoes": inspecao,
+            "caminhonetes": preventiva,
+            "motorizadas": manutencao,
+            "autocarros": reparo
+        }
+    }
+
+#onestate

@@ -3,3 +3,5 @@ __pycache__/
 .env
 *.pyc
 alembic/versions/*.pyc
+.sql
+indices.ts

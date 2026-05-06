@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.core.database import get_db
+from app.models.lembrete import Lembrete, TipoLembrete, PrioridadeLembrete
 from app.schemas.lembrete import (
     LembreteCreate,
     LembreteUpdate,
@@ -62,3 +64,67 @@ def deletar(lembrete_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Lembrete não encontrado")
 
     return {"message": "Lembrete deletado com sucesso"}
+
+
+@router.get("/estatisticas/resumo")
+def resumo_veiculos(db: Session = Depends(get_db)):
+
+    total = db.query(func.count(Lembrete.id)).scalar()
+
+    completado = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.completado == True
+    ).scalar()
+
+    nao_completado = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.completado == False
+    ).scalar()
+
+    #tipo
+    documentacao = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.tipo == TipoLembrete.documentacao
+    ).scalar()
+
+    manutencao = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.tipo == TipoLembrete.manutencao
+    ).scalar()
+
+    revisao = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.tipo == TipoLembrete.revisao
+    ).scalar()
+
+    outro = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.tipo == TipoLembrete.outro
+    ).scalar()
+
+    #prioridade
+    alta = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.prioridade == PrioridadeLembrete.alta
+    ).scalar()
+
+    media = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.prioridade == PrioridadeLembrete.media
+    ).scalar()
+
+    baixa = db.query(func.count(Lembrete.id)).filter(
+        Lembrete.prioridade == PrioridadeLembrete.baixa
+    ).scalar()
+
+
+    return {
+        "total": total,
+        "completados": completado,
+        "nao_completado": nao_completado,
+
+        "prioridade": {
+            "alta": alta,
+            "baixa": baixa,
+            "media": media
+        },
+ 
+        "tipos": {
+            "documentacao": documentacao,
+            "revisoes": revisao,
+            "manutencoes": manutencao,
+            "outros": outro
+        }
+    }
