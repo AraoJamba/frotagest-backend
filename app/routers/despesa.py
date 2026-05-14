@@ -7,6 +7,8 @@ from app.crud.despesa import create_despesa, delete_despesa, get_despesas, get_d
 from app.models.despesa import Despesa, TipoDespesa
 from sqlalchemy import func
 
+from sqlalchemy import extract
+
 
 router = APIRouter(prefix="/despesas", tags=["Despesas"])
 
@@ -103,3 +105,44 @@ def resumo_veiculos(db: Session = Depends(get_db)):
             "outros": outro
         }
     }
+
+
+
+
+@router.get("/analises/resumo")
+def resumo_mensal(db: Session = Depends(get_db)):
+
+    resultados = db.query(
+        extract('month', Despesa.data).label('mes'),
+        Despesa.tipo,
+        func.sum(Despesa.valor).label('total')
+    ).group_by(
+        'mes',
+        Despesa.tipo
+    ).all()
+
+    meses_map = {
+        1: "Jan", 2: "Fev", 3: "Mar", 4: "Abr",
+        5: "Mai", 6: "Jun", 7: "Jul", 8: "Ago",
+        9: "Set", 10: "Out", 11: "Nov", 12: "Dez"
+    }
+
+    resposta = {}
+
+    for mes, tipo, total in resultados:
+        mes = int(mes)
+
+        if mes not in resposta:
+            resposta[mes] = {
+                "mes": meses_map[mes],
+                "combustivel": 0,
+                "manutencao": 0,
+                "seguro": 0,
+                "pneu": 0,
+                "lavagem": 0,
+                "outro": 0
+            }
+
+        resposta[mes][tipo.value] = float(total)
+
+    return sorted(resposta.values(), key=lambda x: list(meses_map.values()).index(x["mes"]))

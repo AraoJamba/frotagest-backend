@@ -1,17 +1,3 @@
-from app.core.database import Base
-from app.models.veiculo import Veiculo
-from app.models.motorista import Motorista
-from app.models.viagem import Viagem
-from app.models.posto_combustivel import PostoCombustivel
-from app.models.lembrete import Lembrete
-from app.models.despesa import Despesa
-from app.models.manutencao_veiculo import ManutencaoVeiculo
-from app.models.servico import Servico
-from app.models.configuracoes_empresa import ConfiguracoesEmpresa
-from app.models.configuracoes_medidas import ConfiguracoesMedidas
-from app.models.usuario import Usuario
-
-
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -19,12 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from sqlalchemy import create_engine
-from app.core.database import DATABASE_URL
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-
 config = context.config
 
 # Interpret the config file for Python logging.
@@ -36,7 +18,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -67,17 +49,8 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+
 def run_migrations_online() -> None:
-    engine = create_engine(DATABASE_URL, poolclass=pool.NullPool)
-
-    with engine.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata
-        )
-
-        with context.begin_transaction():
-            context.run_migrations()
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine

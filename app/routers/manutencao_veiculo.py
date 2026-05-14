@@ -122,9 +122,9 @@ def resumo_veiculos(db: Session = Depends(get_db)):
         "tipos": {
             "corretiva": corretiva,
             "caminhoes": inspecao,
-            "caminhonetes": preventiva,
-            "motorizadas": manutencao,
-            "autocarros": reparo
+            "preventiva": preventiva,
+            "manutencao": manutencao,
+            "reparo": reparo
         }
     }
 

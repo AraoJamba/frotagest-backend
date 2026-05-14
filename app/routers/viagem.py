@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional
 from app.schemas.viagem import ViagemDetailResponse
 from app.models.viagem import Viagem
 
 from sqlalchemy import func
-from app.models.viagem import Viagem
+from sqlalchemy import extract
 
 
 from app.schemas.viagem import (
@@ -166,3 +165,35 @@ def resumo_viagens(db: Session = Depends(get_db)):
         "concluidas": concluidas,
         "canceladas": canceladas
     }
+    
+
+@router.get("/analises/resumo")
+def resumo_mensal_viagens(db: Session = Depends(get_db)):
+
+    resultados = db.query(
+        extract('month', Viagem.data_inicio).label('mes'),
+        func.sum(Viagem.distancia).label('quilometragem'),
+        func.sum(Viagem.custo_viagem).label('custo')
+    ).group_by(
+        'mes'
+    ).all()
+
+    meses_map = {
+        1: "Jan", 2: "Fev", 3: "Mar", 4: "Abr",
+        5: "Mai", 6: "Jun", 7: "Jul", 8: "Ago",
+        9: "Set", 10: "Out", 11: "Nov", 12: "Dez"
+    }
+
+    resposta = []
+
+    for mes, km, custo in resultados:
+        resposta.append({
+            "mes": meses_map[int(mes)],
+            "quilometragem": float(km or 0),
+            "custo_viagem": float(custo or 0)
+        })
+
+    # ordena pelos meses
+    resposta.sort(key=lambda x: list(meses_map.values()).index(x["mes"]))
+
+    return resposta
