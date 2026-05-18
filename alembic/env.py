@@ -11,8 +11,11 @@ from app.models.viagem import Viagem
 from app.models.motorista import Motorista
 from app.models.manutencao_veiculo import ManutencaoVeiculo
 from app.models.servico import Servico
+from app.models.usuario import Usuario
+from app.models.lembrete import Lembrete
 from app.models.configuracoes_empresa import ConfiguracoesEmpresa
 from app.models.configuracoes_medidas import ConfiguracoesMedidas
+from app.models.posto_combustivel import PostoCombustivel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
