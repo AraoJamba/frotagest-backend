@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy import Column, String, DateTime, Float, ForeignKey, Enum
 from sqlalchemy.sql import func
 import enum
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -53,3 +54,5 @@ class ManutencaoVeiculo(Base):
     )
 
     criado_em = Column(DateTime, server_default=func.now())
+
+    veiculo = relationship("Veiculo", back_populates="manutencoes")

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
+from app.schemas.veiculo import VeiculoMiniResponse
 
 from enum import Enum
 
@@ -36,8 +37,18 @@ class DespesaUpdate(BaseModel):
     pago: Optional[bool]
 
 
-class DespesaResponse(DespesaBase):
+
+class DespesaResponse(BaseModel):
     id: str
+    tipo: str
+    valor: float
+    data: datetime
+    descricao: str
+    veiculo_id: str
+    recibo: str | None
+    pago: bool
+
+    veiculo: VeiculoMiniResponse | None = None
 
     class Config:
         from_attributes = True

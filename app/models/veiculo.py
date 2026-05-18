@@ -41,3 +41,5 @@ class Veiculo(Base):
     
    
     viagens = relationship("Viagem", back_populates="veiculo")
+    despesas = relationship("Despesa", back_populates="veiculo")
+    manutencoes = relationship("ManutencaoVeiculo", back_populates="veiculo")

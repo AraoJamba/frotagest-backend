@@ -1,19 +1,20 @@
+import os
+
+from dotenv import load_dotenv
+load_dotenv()
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-import os
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL não encontrada")
 
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True,
-    pool_recycle=280
-)
+
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,
@@ -23,8 +24,10 @@ SessionLocal = sessionmaker(
 
 Base = declarative_base()
 
+
 def get_db():
     db = SessionLocal()
+
     try:
         yield db
     finally:

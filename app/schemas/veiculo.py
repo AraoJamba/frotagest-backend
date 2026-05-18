@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 from enum import Enum
+from pydantic import BaseModel
 
 
 class TipoVeiculo(str, Enum):
@@ -52,6 +53,16 @@ class VeiculoUpdate(BaseModel):
     combustivel: Optional[Combustivel]
     consumoMedio: Optional[float]
     ultimaRevista: Optional[datetime]
+
+
+class VeiculoMiniResponse(BaseModel):
+    id: str
+    placa: str
+    marca: str
+    modelo: str
+
+    class Config:
+        from_attributes = True
 
 class VeiculoResponse(VeiculoBase):
     id: str

@@ -6,7 +6,7 @@ from app.crud.despesa import create_despesa, delete_despesa, get_despesas, get_d
 
 from app.models.despesa import Despesa, TipoDespesa
 from sqlalchemy import func
-
+from sqlalchemy.orm import selectinload
 from sqlalchemy import extract
 
 
@@ -20,17 +20,26 @@ def criar(despesa: DespesaCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[DespesaResponse])
 def listar(db: Session = Depends(get_db)):
-    return get_despesas(db)
+    return db.query(Despesa).join(Despesa.veiculo).all()
+
+#def listar(db: Session = Depends(get_db)):
+#   return get_despesas(db)
+
 
 
 @router.get("/{despesa_id}", response_model=DespesaResponse)
 def buscar(despesa_id: str, db: Session = Depends(get_db)):
-    despesa = get_despesa_by_id(db, despesa_id)
+    return db.query(Despesa).join(Despesa.veiculo).filter(
+        Despesa.id == despesa_id
+    ).first()
 
-    if not despesa:
-        raise HTTPException(status_code=404, detail="Despesa não encontrada")
-
-    return despesa
+#def buscar(despesa_id: str, db: Session = Depends(get_db)):
+#    despesa = get_despesa_by_id(db, despesa_id)
+#
+#    if not despesa:
+#        raise HTTPException(status_code=404, detail="Despesa não encontrada")
+#
+#    return despesa
 
 
 @router.put("/{despesa_id}", response_model=DespesaResponse)
@@ -146,3 +155,10 @@ def resumo_mensal(db: Session = Depends(get_db)):
         resposta[mes][tipo.value] = float(total)
 
     return sorted(resposta.values(), key=lambda x: list(meses_map.values()).index(x["mes"]))
+
+
+@router.get("/veiculo/{veiculo_id}", response_model=list[DespesaResponse])
+def despesas_por_veiculo(veiculo_id: str, db: Session = Depends(get_db)):
+    return db.query(Despesa).join(Despesa.veiculo).filter(
+        Despesa.veiculo_id == veiculo_id
+    ).all()

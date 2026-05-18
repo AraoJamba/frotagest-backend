@@ -51,47 +51,6 @@ def listar(db: Session = Depends(get_db)):
         })
 
 
-    # for v in viagens:
-    #     resultado.append({
-    #         "id": v.id,
-    #         "motoristaId": v.motorista_id,
-    #         "veiculoId": v.veiculo_id,
-    #         "dataInicio": v.data_inicio,
-    #         "dataFim": v.data_fim,
-    #         "localPartida": v.local_partida,
-    #         "localDestino": v.local_destino,
-    #         "distancia": v.distancia,
-    #         "status": v.status,
-    #         "combustivelGasto": v.combustivel_gasto,
-    #         "custoViagem": v.custo_viagem,
-            
-    #         # 🔥 evita crash quando relação não existir
-    #         "motoristaNome": v.motorista.nome if v.motorista else "Sem motorista",
-    #         "veiculoPlaca": v.veiculo.placa if v.veiculo else "Sem veículo",
-    #     })
-
-    return resultado
-
-
-
-
-# @router.get("/", response_model=list[ViagemResponse])
-# def listar(
-#     search: Optional[str] = None,
-#     data_inicio: Optional[str] = None,
-#     local_partida: Optional[str] = None,
-#     local_destino: Optional[str] = None,
-#     status: Optional[str] = None,
-#     db: Session = Depends(get_db)
-# ):
-#     return viagem_crud.get_viagens(
-#         db,
-#         search=search,
-#         data_inicio=data_inicio,
-#         local_partida=local_partida,
-#         local_destino=local_destino,
-#         status=status
-#     )
 
 @router.get("/{viagem_id}", response_model=ViagemDetailResponse)
 def buscar(viagem_id: str, db: Session = Depends(get_db)):
@@ -197,3 +156,51 @@ def resumo_mensal_viagens(db: Session = Depends(get_db)):
     resposta.sort(key=lambda x: list(meses_map.values()).index(x["mes"]))
 
     return resposta
+
+
+@router.get("/veiculo/{veiculo_id}")
+def viagens_por_veiculo(veiculo_id: str, db: Session = Depends(get_db)):
+    viagens = db.query(Viagem).filter(Viagem.veiculo_id == veiculo_id).all()
+
+    resultado = []
+
+    for v in viagens:
+        resultado.append({
+            "id": v.id,
+            "motorista_id": v.motorista_id or "",
+            "veiculo_id": v.veiculo_id or "",
+            "dataInicio": v.data_inicio,
+            "dataFim": v.data_fim,
+            "localPartida": v.local_partida,
+            "localDestino": v.local_destino,
+            "distancia": v.distancia,
+            "status": v.status,
+            "combustivelGasto": v.combustivel_gasto,
+            "custoViagem": v.custo_viagem,
+        })
+
+    return resultado
+
+
+@router.get("/motorista/{motorista_id}")
+def viagens_por_motorista(motorista_id: str, db: Session = Depends(get_db)):
+    viagens = db.query(Viagem).filter(Viagem.motorista_id == motorista_id).all()
+
+    resultado = []
+
+    for v in viagens:
+        resultado.append({
+            "id": v.id,
+            "motorista_id": v.motorista_id or "",
+            "veiculo_id": v.veiculo_id or "",
+            "dataInicio": v.data_inicio,
+            "dataFim": v.data_fim,
+            "localPartida": v.local_partida,
+            "localDestino": v.local_destino,
+            "distancia": v.distancia,
+            "status": v.status,
+            "combustivelGasto": v.combustivel_gasto,
+            "custoViagem": v.custo_viagem,
+        })
+
+    return resultado

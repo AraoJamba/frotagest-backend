@@ -4,6 +4,9 @@ from sqlalchemy.sql import func
 from app.core.database import Base
 from sqlalchemy import Enum 
 import enum
+from sqlalchemy.orm import relationship
+from pydantic import BaseModel
+
 
 class TipoDespesa(enum.Enum):
     combustivel = "combustivel"
@@ -12,6 +15,16 @@ class TipoDespesa(enum.Enum):
     pneu = "pneu"
     lavagem = "lavagem"
     outro = "outro"
+
+
+class VeiculoMiniResponse(BaseModel):
+    id: str
+    placa: str
+    marca: str
+    modelo: str
+
+    class Config:
+        from_attributes = True
     
 
 class Despesa(Base):
@@ -34,3 +47,5 @@ class Despesa(Base):
     veiculo_id = Column(String(36), ForeignKey("veiculos.id"), nullable=False)
 
     criado_em = Column(DateTime(timezone=True), server_default=func.now())
+
+    veiculo = relationship("Veiculo", back_populates="despesas")

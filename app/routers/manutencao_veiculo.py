@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.database import get_db
 from app.schemas.manutencao_veiculo import (
@@ -24,12 +25,21 @@ def criar(manutencao: ManutencaoCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[ManutencaoResponse])
 def listar(db: Session = Depends(get_db)):
-    return crud.get_manutencoes(db)
+    manutencoes = db.query(ManutencaoVeiculo).options(
+        selectinload(ManutencaoVeiculo.veiculo)
+    ).all()
+
+    return manutencoes
+
 
 
 @router.get("/{manutencao_id}", response_model=ManutencaoResponse)
 def pegar_por_id(manutencao_id: str, db: Session = Depends(get_db)):
-    manutencao = crud.get_manutencao_by_id(db, manutencao_id)
+    manutencao = db.query(ManutencaoVeiculo).options(
+        selectinload(ManutencaoVeiculo.veiculo)
+    ).filter(
+        ManutencaoVeiculo.id == manutencao_id
+    ).first()
 
     if not manutencao:
         raise HTTPException(status_code=404, detail="Manutenção não encontrada")
@@ -63,6 +73,21 @@ def deletar(manutencao_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Manutenção não encontrada")
 
     return {"message": "Manutenção deletada com sucesso"}
+
+
+
+@router.get("/veiculo/{veiculo_id}", response_model=list[ManutencaoResponse])
+def manutencoes_por_veiculo(
+    veiculo_id: str,
+    db: Session = Depends(get_db)
+):
+    manutencoes = db.query(ManutencaoVeiculo).options(
+        selectinload(ManutencaoVeiculo.veiculo)
+    ).filter(
+        ManutencaoVeiculo.veiculo_id == veiculo_id
+    ).all()
+
+    return manutencoes
 
 
 
