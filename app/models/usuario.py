@@ -2,7 +2,6 @@ import uuid
 import enum
 
 from sqlalchemy import Column, String, Enum
-from sqlalchemy.dialects.mysql import CHAR
 
 from app.core.database import Base
 

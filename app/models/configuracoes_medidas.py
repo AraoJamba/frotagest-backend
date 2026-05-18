@@ -1,16 +1,12 @@
 import uuid
 import enum
 
-from sqlalchemy import Column, Enum
-from sqlalchemy.dialects.mysql import CHAR
-
+from sqlalchemy import Column, Enum, String
 from app.core.database import Base
-
 
 class UnidadeDistancia(str, enum.Enum):
     km = "km"
     mi = "mi"
-
 
 class UnidadeConsumo(str, enum.Enum):
     kmL = "kmL"
@@ -31,7 +27,7 @@ class ConfiguracoesMedidas(Base):
     __tablename__ = "configuracoes_medidas"
 
     id = Column(
-        CHAR(36),
+        String(36),
         primary_key=True,
         default=lambda: str(uuid.uuid4())
     )

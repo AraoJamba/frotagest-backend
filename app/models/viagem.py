@@ -30,7 +30,7 @@ class Viagem(Base):
     custo_viagem = Column(Float)
 
     observacoes = Column(String(500), nullable=True)
-    
+
     
     # RELACIONAMENTOS
     motorista_id = Column(String(36), ForeignKey("motoristas.id"))

@@ -26,8 +26,7 @@ class Motorista(Base):
 
     endereco = Column(String(255))
     cidade = Column(String(100))
-    provincia = Column(String(100))
-    
+    provincia = Column(String(100))    
 
 # RELACIONAMENTO
     viagens = relationship("Viagem", back_populates="motorista")

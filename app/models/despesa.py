@@ -1,6 +1,5 @@
 import uuid
 from sqlalchemy import Column, String, Float, Boolean, DateTime, ForeignKey
-
 from sqlalchemy.sql import func
 from app.core.database import Base
 from sqlalchemy import Enum 

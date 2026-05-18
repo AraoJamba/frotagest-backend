@@ -1,6 +1,5 @@
 import uuid
 from sqlalchemy import Column, String, DateTime, Float, ForeignKey, Enum
-from sqlalchemy.dialects.mysql import CHAR
 from sqlalchemy.sql import func
 import enum
 

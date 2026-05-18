@@ -17,7 +17,6 @@ class PrioridadeLembrete(enum.Enum):
     media = 'media' 
     alta = 'alta'
 
-
 class Lembrete(Base):
     __tablename__ = "lembretes"
 

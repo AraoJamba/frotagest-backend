@@ -1,7 +1,5 @@
 import uuid
 from sqlalchemy import Column, String
-from sqlalchemy.dialects.mysql import CHAR
-
 from app.core.database import Base
 
 
