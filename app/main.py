@@ -16,7 +16,7 @@ app = FastAPI()
 # 2. Configure o CORS IMEDIATAMENTE após criar o app
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "https://frotagest-frontend.vercel.app"],
     allow_credentials=True,  # ESSENCIAL para os Cookies que você está usando
     allow_methods=["*"],
     allow_headers=["*"],
