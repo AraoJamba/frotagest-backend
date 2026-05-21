@@ -28,27 +28,33 @@ def criar(viagem: ViagemCreate, db: Session = Depends(get_db)):
     return viagem_crud.create_viagem(db, viagem)
 
 
-@router.get("/")
+@router.get("/", response_model=list[ViagemResponse])
 def listar(db: Session = Depends(get_db)):
+    return db.query(Viagem).join(Viagem.veiculo).all()
 
-    viagens = db.query(Viagem).all()
 
-    resultado = []
+# @router.get("/")
+# def listar(db: Session = Depends(get_db)):
+
+#     viagens = db.query(Viagem).all()
+
+#     resultado = []
     
-    for v in viagens:
-        resultado.append({
-            "id": v.id,
-            "motorista_id": v.motorista_id or "",
-            "veiculo_id": v.veiculo_id or "",
-            "dataInicio": v.data_inicio,
-            "dataFim": v.data_fim,
-            "localPartida": v.local_partida,
-            "localDestino": v.local_destino,
-            "distancia": v.distancia,
-            "status": v.status,
-            "combustivelGasto": v.combustivel_gasto,
-            "custoViagem": v.custo_viagem,
-        })
+#     for v in viagens:
+#         resultado.append({
+#             "id": v.id,
+#             "motorista_id": v.motorista_id or "",
+#             "veiculo_id": v.veiculo_id or "",
+#             "dataInicio": v.data_inicio,
+#             "dataFim": v.data_fim,
+#             "localPartida": v.local_partida,
+#             "localDestino": v.local_destino,
+#             "distancia": v.distancia,
+#             "status": v.status,
+#             "combustivelGasto": v.combustivel_gasto,
+#             "custoViagem": v.custo_viagem,
+#         })
+
 
 
 
@@ -157,6 +163,35 @@ def resumo_mensal_viagens(db: Session = Depends(get_db)):
 
     return resposta
 
+@router.get("/analises/resumo/combustivel_gasto")
+def combustivel_gasto_resumo(db: Session = Depends(get_db)):
+
+    resultados = db.query(
+        extract('month', Viagem.data_inicio).label('mes'),
+        func.sum(Viagem.combustivel_gasto).label('combustivel_gasto')
+    ).group_by(
+        'mes'
+    ).all()
+
+    meses_map = {
+        1: "Jan", 2: "Fev", 3: "Mar", 4: "Abr",
+        5: "Mai", 6: "Jun", 7: "Jul", 8: "Ago",
+        9: "Set", 10: "Out", 11: "Nov", 12: "Dez"
+    }
+
+    resposta = []
+
+    for mes, combustivel in resultados:
+        resposta.append({
+            "mes": meses_map[int(mes)],
+            "combustivel_gasto": float(combustivel or 0)
+        })
+
+    # ordena pelos meses
+    resposta.sort(key=lambda x: list(meses_map.values()).index(x["mes"]))
+
+    return resposta
+
 
 @router.get("/veiculo/{veiculo_id}")
 def viagens_por_veiculo(veiculo_id: str, db: Session = Depends(get_db)):
@@ -204,3 +239,6 @@ def viagens_por_motorista(motorista_id: str, db: Session = Depends(get_db)):
         })
 
     return resultado
+
+
+

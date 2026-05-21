@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from app.core.security import verificar_senha,  hash_senha
 
 from sqlalchemy import func
 
@@ -10,7 +11,8 @@ from app.core.database import get_db
 from app.schemas.usuario import (
     UsuarioCreate,
     UsuarioUpdate,
-    UsuarioResponse
+    UsuarioResponse,
+    UpdateSenha
 )
 
 from app.crud import usuario as crud
@@ -43,6 +45,9 @@ def listar(
         email,
         papel
     )
+
+
+
 
 
 
@@ -111,4 +116,45 @@ def resumo_veiculos(db: Session = Depends(get_db)):
         "total": total,
         "admin": admin,
         "gerente": gerente,
+    }
+
+
+
+@router.put("/{usuario_id}/alterar-senha")
+def alterar_senha(
+    usuario_id: str,
+    dados: UpdateSenha,
+    db: Session = Depends(get_db)
+):
+
+    usuario = crud.get_usuario_by_id(
+        db,
+        usuario_id
+    )
+
+    if not usuario:
+        raise HTTPException(
+            status_code=404,
+            detail="Usuário não encontrado"
+        )
+
+    senha_correta = verificar_senha(
+        dados.senha_atual,
+        usuario.senha
+    )
+
+    if not senha_correta:
+        raise HTTPException(
+            status_code=400,
+            detail="Senha atual incorreta"
+        )
+
+    usuario.senha = hash_senha(
+        dados.nova_senha
+    )
+
+    db.commit()
+
+    return {
+        "mensagem": "Senha alterada com sucesso"
     }

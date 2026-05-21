@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from app.schemas.veiculo import VeiculoMiniResponse
 
 class TipoStatus (str, Enum):
     planejada = 'planejada'
@@ -49,11 +50,30 @@ class ViagemUpdate(BaseModel):
     custo_viagem: Optional[float] = None
     observacoes: Optional[str] = None
 
-class ViagemResponse(ViagemBase):
+# class ViagemResponse(ViagemBase):
+#     id: str
+#     motorista_id: Optional[str] = None
+#     veiculo_id: Optional[str] = None
+#     model_config = ConfigDict(from_attributes=True)
+
+class ViagemResponse(BaseModel):
     id: str
     motorista_id: Optional[str] = None
     veiculo_id: Optional[str] = None
-    model_config = ConfigDict(from_attributes=True)
+    data_inicio: Optional[datetime] = None
+    data_fim: Optional[datetime] = None
+    local_partida: Optional[str] = None
+    local_destino: Optional[str] = None
+    status: Optional[TipoStatus] = None
+    distancia: Optional[float] = None
+    combustivel_gasto: Optional[float] = None
+    custo_viagem: Optional[float] = None
+    observacoes: Optional[str] = None
+
+    veiculo: VeiculoMiniResponse | None = None
+
+    class Config:
+        from_attributes = True
 
 # ESTA É A CLASSE QUE RETORNA OS DADOS DETALHADOS
 class ViagemDetailResponse(ViagemBase):

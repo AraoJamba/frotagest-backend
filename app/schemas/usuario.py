@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from enum import Enum
+from typing import Optional
 
 
 class PapelUsuario(str, Enum):
@@ -18,11 +19,15 @@ class UsuarioCreate(UsuarioBase):
 
 
 class UsuarioUpdate(BaseModel):
-    nome: str
-    email: EmailStr
-    senha: str
-    papel: PapelUsuario
+    nome: Optional[str] = None
+    email: Optional[EmailStr] = None
+    senha: Optional[str] = None
+    papel: Optional[PapelUsuario] = None
 
+
+class UpdateSenha(BaseModel):
+    senha_atual: str
+    nova_senha: str
 
 class UsuarioResponse(UsuarioBase):
     id: str

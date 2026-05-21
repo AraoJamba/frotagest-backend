@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioUpdate
+from app.core.security import hash_senha
 
 from passlib.context import CryptContext
 
@@ -12,10 +13,6 @@ pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
 )
-
-
-def hash_senha(senha: str):
-    return pwd_context.hash(senha)
 
 
 def create_usuario(db: Session, usuario: UsuarioCreate):
@@ -80,10 +77,18 @@ def update_usuario(
     db_usuario = get_usuario_by_id(db, usuario_id)
 
     if db_usuario:
-        db_usuario.nome = usuario.nome
-        db_usuario.email = usuario.email
-        db_usuario.senha = hash_senha(usuario.senha)
-        db_usuario.papel = usuario.papel
+
+        if usuario.nome is not None:
+            db_usuario.nome = usuario.nome
+
+        if usuario.email is not None:
+            db_usuario.email = usuario.email
+
+        if usuario.senha is not None:
+            db_usuario.senha = hash_senha(usuario.senha)
+
+        if usuario.papel is not None:
+            db_usuario.papel = usuario.papel
 
         db.commit()
         db.refresh(db_usuario)
@@ -99,3 +104,4 @@ def delete_usuario(db: Session, usuario_id: str):
         db.commit()
 
     return db_usuario
+

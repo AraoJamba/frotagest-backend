@@ -1,6 +1,8 @@
 import uuid
 import enum
 
+
+
 from sqlalchemy import Column, String, Enum
 
 from app.core.database import Base
