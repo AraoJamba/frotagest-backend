@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import (
     veiculo, motorista, viagem, posto_combustivel, 
-    lembrete, despesa, manutencao_veiculo, servico, 
+    lembrete, despesa, manutencao_veiculo, servico, empresa,
     configuracoes_empresa, configuracoes_medidas, usuario, auth
 )
 
@@ -15,7 +15,7 @@ load_dotenv()
 
 
 # 1. Crie a instância APENAS UMA VEZ
-app = FastAPI()
+app = FastAPI(redirect_slashes=False)
 
 # 2. Configure o CORS IMEDIATAMENTE após criar o app
 app.add_middleware(
@@ -28,6 +28,7 @@ app.add_middleware(
 
 # 3. Inclua as rotas (O app agora possui o CORS e as rotas)
 app.include_router(auth.router)
+app.include_router(empresa.router)
 app.include_router(usuario.router)
 app.include_router(configuracoes_medidas.router)
 app.include_router(configuracoes_empresa.router)

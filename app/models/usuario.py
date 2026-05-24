@@ -1,9 +1,8 @@
 import uuid
 import enum
 
-
-
-from sqlalchemy import Column, String, Enum
+from sqlalchemy import Column, String, ForeignKey, Enum as SQLEnum
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -23,12 +22,22 @@ class Usuario(Base):
     )
 
     nome = Column(String(100), nullable=False)
-
     email = Column(String(100), unique=True, nullable=False)
-
     senha = Column(String(255), nullable=False)
 
-    papel = Column(
-        Enum(PapelUsuario),
+    empresa_id = Column(
+        String(36),
+        ForeignKey("empresas.id"),
         nullable=False
+    )
+
+    papel = Column(
+        SQLEnum(PapelUsuario),
+        nullable=False,
+        default=PapelUsuario.gerente
+    )
+
+    empresa = relationship(
+        "Empresa",
+        back_populates="usuarios"
     )
