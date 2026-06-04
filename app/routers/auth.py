@@ -157,8 +157,29 @@ def me(
 
 
 
+@router.post("/logout")
+def logout(response: Response):
+    # 1. Deleta o cookie do token de acesso
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        domain=None,
+        httponly=True,
+        samesite="lax"
+    )
+    
+    # 2. Deleta o cookie do ID da empresa (tenant)
+    response.delete_cookie(
+        key="empresa_id",
+        path="/",
+        domain=None,
+        httponly=True,
+        samesite="lax"
+    )
+    
+    return {"message": "Sessão encerrada com sucesso"}
 
-from pydantic import BaseModel, EmailStr
+
 
 class EsqueceuSenhaRequest(BaseModel):
     email: EmailStr
@@ -228,225 +249,6 @@ async def resetar_senha(
 
 
 
-# @router.post("/esqueceu-senha")
-# async def esqueceu_senha(data: EsqueceuSenhaRequest):
 
-#     email = data.email
 
-#     token = criar_token_reset(email)
 
-#     link = f"http://localhost:3000/resetar-senha?token={token}"
-
-#     message = MessageSchema(
-#         subject="Recuperação de senha",
-#         recipients=[email],
-#         body=f"""
-#             <h2>Recuperação de senha</h2>
-#             <p>Clique no botão abaixo:</p>
-#             <a href="{link}">Redefinir senha</a>
-#         """,
-#         subtype="html"
-#     )
-
-#     fm = FastMail(conf)
-#     await fm.send_message(message)
-
-#     return {"msg": "Email enviado"}
-
-
-
-# @router.post("/esqueceu-senha")
-# async def esqueceu_senha(email: str):
-
-#     token = criar_token_reset(email)
-
-#     link = f"http://localhost:3000/resetar-senha?token={token}"
-
-#     message = MessageSchema(
-#         subject="Recuperação de senha",
-#         recipients=[email],
-#         body=f"""
-#         Clique no link para redefinir sua senha:
-
-#         {link}
-#         """,
-#         subtype="plain"
-#     )
-
-#     fm = FastMail(conf)
-#     await fm.send_message(message)
-
-#     return {"msg": "Email enviado"}
-
-
-
-
-
-
-# @router.post("/resetar-senha")
-# async def resetar_senha(token: str, nova_senha: str):
-
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         email = payload.get("sub")
-
-#     except JWTError:
-#         return {"erro": "Token inválido"}
-
-#     # 🔥 aqui você atualiza no banco
-#     # hash da senha etc
-
-#     return {"msg": "Senha atualizada"}
-
-
-
-
-
-
-
-
-
-
-# from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
-# from sqlalchemy.orm import Session
-# import bcrypt
-
-# from app.core.database import get_db
-# from app.models.usuario import Usuario
-# from app.schemas.auth import LoginSchema
-
-# router = APIRouter(
-#     prefix="/auth",
-#     tags=["Auth"]
-# )
-
-
-# router = APIRouter(
-#     prefix="/auth",
-#     tags=["Auth"]
-# )
-
-
-
-# @router.post("/login")
-# def login(dados: LoginSchema, response: Response, db: Session = Depends(get_db)):
-#     usuario = db.query(Usuario).filter(
-#         Usuario.email == dados.email
-#     ).first()
-
-#     if not usuario:
-#         raise HTTPException(status_code=400, detail="Credenciais inválidas")
-
-#     senha_valida = bcrypt.checkpw(
-#         dados.senha.encode(),
-#         usuario.senha.encode()
-#     )
-
-#     if not senha_valida:
-#         raise HTTPException(status_code=400, detail="Credenciais inválidas")
-
-#     response.set_cookie(
-#         key="access_token",
-#         value=str(usuario.id),
-#         httponly=True,
-#         secure=False,
-#         samesite="lax"
-#     )
-
-#     response.set_cookie(
-#         key="empresa_id",
-#         value=str(usuario.empresa_id),
-#         httponly=True,
-#         secure=False,
-#         samesite="lax"
-#     )
-
-#     return {"message": "Login realizado com sucesso"}
-
-
-# @router.get("/eu")
-# def me(
-#     access_token: str = Cookie(None),
-#     db: Session = Depends(get_db)
-# ):
-#     if not access_token:
-#         raise HTTPException(status_code=401, detail="Não autenticado")
-
-#     usuario = db.query(Usuario).filter(
-#         Usuario.id == access_token
-#     ).first()
-
-#     if not usuario:
-#         raise HTTPException(status_code=401, detail="Usuário inválido")
-
-#     return {
-#         "id": usuario.id,
-#         "nome": usuario.nome,
-#         "email": usuario.email,
-#         "papel": usuario.papel,
-#         "empresa_id": usuario.empresa_id
-#     }
-
-
-
-
-# @router.get("/eu")
-# def me(
-#     access_token: str = Cookie(None),
-#     db: Session = Depends(get_db)
-# ):
-#     if not access_token:
-#         raise HTTPException(
-#             status_code=401,
-#             detail="Não autenticado"
-#         )
-
-#     usuario = db.query(Usuario).filter(
-#         Usuario.id == access_token
-#     ).first()
-
-#     if not usuario:
-#         raise HTTPException(
-#             status_code=401,
-#             detail="Usuário inválido"
-#         )
-
-#     return {
-#         "id": usuario.id,
-#         "nome": usuario.nome,
-#         "email": usuario.email,
-#         "papel": usuario.papel
-#     }
-
-
-# @router.post("/login")
-# def login(
-#     dados: LoginSchema,
-#     response: Response,
-#     db: Session = Depends(get_db)
-# ):
-#     usuario = db.query(Usuario).filter(
-#         Usuario.email == dados.email
-#     ).first()
-
-#     if not usuario:
-#         raise HTTPException(status_code=400, detail="Credenciais inválidas")
-
-#     senha_valida = bcrypt.checkpw(
-#         dados.senha.encode(),
-#         usuario.senha.encode()
-#     )
-
-#     if not senha_valida:
-#         raise HTTPException(status_code=400, detail="Credenciais inválidas")
-
-#     # Criar cookie
-#     response.set_cookie(
-#         key="access_token",
-#         value=str(usuario.id),
-#         httponly=True,
-#         secure=False,  # True em produção
-#         samesite="lax"
-#     )
-
-#     return {"message": "Login realizado com sucesso"}

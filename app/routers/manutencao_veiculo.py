@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Cookie
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import func
+from sqlalchemy import func, extract
 
 from app.core.database import get_db
 from app.models.manutencao_veiculo import ManutencaoVeiculo, TipoManutencao, StatusManutencao
@@ -12,7 +12,19 @@ from app.schemas.manutencao_veiculo import (
 from app.crud import manutencao_veiculo as crud
 
 
+from app.schemas.manutencao_veiculo import ManutencaoCreate, ManutencaoUpdate, ManutencaoResponse
+
+
+
 router = APIRouter(prefix="/manutencoes", tags=["Manutencoes"])
+
+# =========================
+# DEPENDENCY MULTI-TENANT
+# =========================
+def get_empresa_id(empresa_id: str = Cookie(None)):
+    if not empresa_id:
+        raise HTTPException(status_code=401, detail="Empresa não definida")
+    return empresa_id
 
 
 # =========================
@@ -200,8 +212,50 @@ def resumo(
     }
 
 
+@router.get("/analises/resumo")
+def analise_mensal(
+    db: Session = Depends(get_db),
+    empresa_id: str = Depends(get_empresa_id)
+):
+    resultados = db.query(
+        extract('month', ManutencaoVeiculo.data_agendada).label('mes'),
+        ManutencaoVeiculo.tipo_manutencao,
+        func.sum(ManutencaoVeiculo.custo).label('total')
+    ).filter(
+        ManutencaoVeiculo.empresa_id == empresa_id
+    ).group_by(
+        'mes',
+        ManutencaoVeiculo.tipo_manutencao
+    ).all()
 
+    meses_map = {
+        1: "Jan", 2: "Fev", 3: "Mar", 4: "Abr",
+        5: "Mai", 6: "Jun", 7: "Jul", 8: "Ago",
+        9: "Set", 10: "Out", 11: "Nov", 12: "Dez"
+    }
 
+    resposta = {}
+
+    for mes, tipo, total in resultados:
+        mes = int(mes)
+
+        if mes not in resposta:
+            resposta[mes] = {
+                "mes": meses_map[mes],
+                "preventiva": 0,
+                "corretiva": 0,
+                "manutencao": 0,
+                "reparo": 0,
+                "inspecao": 0,
+                "outro": 0
+            }
+
+        resposta[mes][tipo.value] = float(total)
+
+    return sorted(
+        resposta.values(),
+        key=lambda x: list(meses_map.values()).index(x["mes"])
+    )
 
 
 
